@@ -1,0 +1,195 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+ 
+<!-- Font Awesome Icon Library -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+  .container{
+    margin-top: 20px;
+    width:600px;
+    height:625px;
+    background-color:rgba(243, 239, 235, 0.774) ;
+  }
+.checked {
+  color:  rgb(135, 85, 12);
+}
+.unchecked{
+  color:white;
+}
+body{
+  background-image: url('https://thumbs.dreamstime.com/z/your-feedback-written-wooden-background-40379799.jpg');
+  background-color: antiquewhite;
+}
+.container1{
+margin-left: 30px;
+font-size: 30px;
+background-color: rgba(135, 86, 12, 0.311);
+width:200px;
+}
+
+
+.star-rating{
+  margin-right:20px;
+ 
+}
+h3{
+color:rgb(20, 20, 20);
+}
+title{
+  text-align: center;
+}
+p {
+      line-height: 0.9;
+      font-size: large; /* Adjust the value as needed */
+    }
+
+h2{
+  color: rgb(135, 85, 12);
+  text-align: center;
+}
+.containern {
+            max-width:5000px;
+            height:70px;
+           background-color: rgb(135, 85, 12)  ;
+            color:black;
+        }
+        .navbar .form-inline {
+            margin-top: 20px;
+            align-items: center;
+          
+        }
+     
+
+textarea{
+  width:500px;
+  height:100px;
+  background-color: rgba(135, 86,12,0.311);
+  padding: 10px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+}
+       
+</style>
+
+</head>
+<body>
+
+  <div class="containern">
+    <!-- Navigation bar https://castlesandcoasts.co.uk/media/9680/feedback-6.png-->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light ">
+        <img src="https://vectorified.com/images/feedback-icon-png-18.png" width="50" height="40" class="navbar-brand" >
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav"   aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                        <a class="nav-link" href="{{url_for('feed')}}">feedback</a>  
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="filesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        reviews
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="filesDropdown">
+                        <a class="dropdown-item" href="{{url_for('viewreviews')}}">overallView</a>
+                        <a class="dropdown-item" href="{{url_for('view')}}">yours</a>
+                    </div>
+                </li>
+            </ul>
+
+
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Hello,{{session.get('user')}}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('getdata')}}">download</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('logout')}}">logout</a>
+                </li>
+            </ul>
+         
+        </div>
+    </nav>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</div>
+<div class="container">
+<h2>Review Feedback</h2>
+<h4>placements</h4>
+
+<div class="star-rating">
+  <div class="container1">
+{% for i in range(pls) %}
+<span  class="fa fa-star checked"></span>
+{% endfor %}
+{% for i in range(5-pls) %}
+<span class="fa fa-star unchecked"></span>
+{% endfor %}
+</div>
+
+<h4>infrastructure</h4>
+<div class="container1">
+{% for i in range(inf) %}
+<span class="fa fa-star checked"></span>
+{% endfor %}
+{% for i in range(5-inf) %}
+<span class="fa fa-star unchecked"></span>
+{% endfor %}
+
+</br>
+</div>
+
+<h4>classrooms</h4>
+<div class="container1">
+{% for i in range(cla) %}
+<span class="fa fa-star checked"></span>
+{% endfor %}
+{% for i in range(5-cla) %}
+<span class="fa fa-star unchecked"></span>
+{% endfor %}
+</br>
+</div>
+
+<h4>faculty-rating</h4>
+<div class="container1">
+{% for i in range(fr) %}
+<span class="fa fa-star checked"></span>
+{% endfor %}
+{% for i in range(5-fr) %}
+<span class="fa fa-star unchecked"></span>
+{% endfor %}
+</div>
+
+
+<h4>hostels</h4>
+<div class="container1">
+{% for i in range(ho) %}
+<span class="fa fa-star checked"></span>
+{% endfor %}
+{% for i in range(5-ho) %}
+<span class="fa fa-star unchecked"></span>
+{% endfor %}
+</div>
+
+
+<div class="input-group">
+<h4><label for="classrooms">reviews</label></h4></div>  
+
+<textarea  value="{{ovr}}" readonly>{{ovr}}</textarea>
+
+
+</div>
+</div>
+</body>
+</html>
+
+
