@@ -15,7 +15,18 @@ app.secret_key=secret_key
 app.config['SESSION_TYPE']='filesystem'
 Session(app)
 excel.init_excel(app)
-mydb=mysql.connector.connect(host='localhost',user='root',password='Harika',db='ifs')
+#mydb=mysql.connector.connect(host='localhost',user='root',password='Harika',db='ifs')
+db = os.environ['RDS_DB_NAME']
+user = os.environ['RDS_USERNAME']
+password = os.environ['RDS_PASSWORD']
+host = os.environ['RDS_HOSTNAME']
+port = os.environ['RDS_PORT']
+with mysql.connector.connect(host=host, user=user, password=password, db=db) as conn:
+    cursor = conn.cursor(buffered=True)
+    cursor.execute('CREATE TABLE IF NOT EXISTS users(username varchar(15) primary  key,email varchar(80) unique,password varchar(15),email_status enum("confirmed","not confirmed") default "not confirmed")')
+    cursor.execute('CREATE TABLE IF NOT EXISTS survey(uname varchar(15),sid varchar(9), time int, url varchar(300), date timestamp default now() on update now(),foreign key(uname) references users(username))')
+    cursor.execute('CREATE TABLE IF NOT EXISTS formdata(username varchar(30), email varchar(30) primary key, q1 int, q2 varchar(5), q3 int, q4 varchar(5), q5 int, q6 varchar(5), q7 int, q8 int, q9 varchar(15), q10 varchar(100))')
+mydb = mysql.connector.connect(host=host, user=user, password=password, db=db)
 
 @app.route('/')
 def index():
@@ -56,12 +67,15 @@ def login():
 
 @app.route('/time',methods=['GET','POST'])
 def time():
-    if session.get('user'):
+    
         if request.method=="POST":
-            username=session.get('user')
+            username=session.get("user")
             time=int(request.form['timestamp'])
+            cursor=mydb.cursor(buffered=True)
+            cursor.execute("select email from users where username=%s",[username])
+            email=cursor.fetchone()[0]
             sid = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(5)])
-            url=url_for('feed',sid=sid,token=token(sid,salt=salt3),_external=True)
+            url=url_for('feed',time=time,token=token(email,salt=salt3),_external=True)
             cursor=mydb.cursor(buffered=True)
             cursor.execute('insert into survey(uname,sid,url,time) values(%s,%s,%s,%s)',[username,sid,url,time])
             mydb.commit()
@@ -69,21 +83,16 @@ def time():
             return render_template("homepage.html")
         else:
             return render_template("timestamp.html")
-    else:
-        return render_template('login.html')
+  
 
-
-
-
-
-@app.route('/feedback/<token>/<sid>',methods=['GET','POST'])
-def feed(token,sid):
-    cursor=mydb.cursor(buffered=True)
-    cursor.execute("select time from survey where sid=%s",[sid])
-    max_age=cursor.fetchone()[0]
+@app.route('/feed/<token>/<time>',methods=['GET','POST'])
+def feed(token,time):
+    #cursor=mydb.cursor(buffered=True)
+    #cursor.execute("select time from survey where sid=%s",[sid])
+    #max_age=cursor.fetchone()[0]
     try:
         serializer=URLSafeTimedSerializer(secret_key)
-        sid=serializer.loads(token,salt=salt3,max_age=max_age)
+        email=serializer.loads(token,salt=salt3,max_age=int(time))
     except Exception as e:
         print(e)
         abort(404,'Link Expired')
@@ -120,11 +129,9 @@ def feed(token,sid):
         else:
             return render_template('feedback.html')
 
-
 @app.route('/sfeed')
 def sfeed():
     return render_template("sfeed.html")
-
 
 @app.route('/view')
 def view():
@@ -137,16 +144,7 @@ def view():
         return render_template('table.html',data1=data1)
     else:
         return render_template("login.html")
-
-
-
-
-
-
-
-
-
-
+    
 @app.route('/getnotesdata')
 def getdata():
     if session.get('user'):
@@ -260,7 +258,7 @@ def confirm(token):
             flash('Email confirmation success')
             return redirect(url_for('login'))
 
-@app.route('/forget',methods=['GET','POST'])
+@app.route('/forgot',methods=['GET','POST'])
 def forgot():
     if request.method=='POST':
         email=request.form['email']
@@ -319,4 +317,5 @@ def logout():
     else:
         return redirect(url_for('login'))
 
-app.run(debug=True,use_reloader=True)
+if __name__=="__main__":
+    app.run()
